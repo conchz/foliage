@@ -6,6 +6,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -18,49 +20,48 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
-public class ConnectManage {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ConnectionManager {
 
-    private volatile static ConnectManage connectManage;
+    private volatile static ConnectionManager connectionManager;
 
-    EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
+    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
+    private final ThreadPoolExecutor threadPoolExecutor =
+            new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(65536));
 
-    private CopyOnWriteArrayList<RpcClientHandler> connectedHandlers = new CopyOnWriteArrayList<>();
-    private Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
-    // private Map<InetSocketAddress, Channel> connectedServerNodes = new ConcurrentHashMap<>();
+    private final CopyOnWriteArrayList<RpcClientHandler> connectedHandlers = new CopyOnWriteArrayList<>();
+    private final Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
 
-    private ReentrantLock lock = new ReentrantLock();
-    private Condition connected = lock.newCondition();
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition connected = lock.newCondition();
+    private final AtomicInteger roundRobin = new AtomicInteger(0);
+    private final AtomicBoolean isRunning = new AtomicBoolean(true);
     protected long connectTimeoutMillis = 6000;
-    private AtomicInteger roundRobin = new AtomicInteger(0);
-    private volatile boolean isRuning = true;
 
-    private ConnectManage() {
-    }
-
-    public static ConnectManage getInstance() {
-        if (connectManage == null) {
-            synchronized (ConnectManage.class) {
-                if (connectManage == null) {
-                    connectManage = new ConnectManage();
+    public static ConnectionManager getInstance() {
+        if (connectionManager == null) {
+            synchronized (ConnectionManager.class) {
+                if (connectionManager == null) {
+                    connectionManager = new ConnectionManager();
                 }
             }
         }
-        return connectManage;
+        return connectionManager;
     }
 
     public void updateConnectedServer(List<String> allServerAddress) {
         if (allServerAddress != null) {
             if (allServerAddress.size() > 0) {  // Get available server node
-                //update local serverNodes cache
-                HashSet<InetSocketAddress> newAllServerNodeSet = new HashSet<InetSocketAddress>();
-                for (int i = 0; i < allServerAddress.size(); ++i) {
-                    String[] array = allServerAddress.get(i).split(":");
+                // Update local serverNodes cache
+                HashSet<InetSocketAddress> newAllServerNodeSet = new HashSet<>();
+                for (String address : allServerAddress) {
+                    String[] array = address.split(":");
                     if (array.length == 2) { // Should check IP and port
                         String host = array[0];
                         int port = Integer.parseInt(array[1]);
@@ -70,11 +71,9 @@ public class ConnectManage {
                 }
 
                 // Add new server node
-                for (final InetSocketAddress serverNodeAddress : newAllServerNodeSet) {
-                    if (!connectedServerNodes.keySet().contains(serverNodeAddress)) {
-                        connectServerNode(serverNodeAddress);
-                    }
-                }
+                newAllServerNodeSet.stream()
+                        .filter(serverNodeAddress -> !connectedServerNodes.keySet().contains(serverNodeAddress))
+                        .forEach(this::connectServerNode);
 
                 // Close and remove invalid server nodes
                 for (int i = 0; i < connectedHandlers.size(); ++i) {
@@ -90,7 +89,7 @@ public class ConnectManage {
                 }
 
             } else { // No available server node ( All server nodes are down )
-                log.error("No available server node. All server nodes are down !!!");
+                log.error("No available server node. All server nodes are down!");
                 for (final RpcClientHandler connectedServerHandler : connectedHandlers) {
                     SocketAddress remotePeer = connectedServerHandler.getRemotePeer();
                     RpcClientHandler handler = connectedServerNodes.get(remotePeer);
@@ -107,30 +106,28 @@ public class ConnectManage {
             connectedHandlers.remove(handler);
             connectedServerNodes.remove(handler.getRemotePeer());
         }
+
         connectServerNode((InetSocketAddress) remotePeer);
     }
 
     private void connectServerNode(final InetSocketAddress remotePeer) {
-        threadPoolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                Bootstrap b = new Bootstrap();
-                b.group(eventLoopGroup)
-                        .channel(NioSocketChannel.class)
-                        .handler(new RpcClientInitializer());
+        threadPoolExecutor.submit((Runnable) () -> {
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(eventLoopGroup)
+                    .channel(NioSocketChannel.class)
+                    .handler(new RpcClientInitializer());
 
-                ChannelFuture channelFuture = b.connect(remotePeer);
-                channelFuture.addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-                        if (channelFuture.isSuccess()) {
-                            log.debug("Successfully connect to remote server. remote peer = " + remotePeer);
-                            RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            addHandler(handler);
-                        }
+            ChannelFuture channelFuture = bootstrap.connect(remotePeer);
+            channelFuture.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+                    if (channelFuture.isSuccess()) {
+                        log.debug("Successfully connect to remote server. remote peer = " + remotePeer);
+                        RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
+                        addHandler(handler);
                     }
-                });
-            }
+                }
+            });
         });
     }
 
@@ -159,31 +156,31 @@ public class ConnectManage {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public RpcClientHandler chooseHandler() {
-        CopyOnWriteArrayList<RpcClientHandler> handlers = (CopyOnWriteArrayList<RpcClientHandler>) this.connectedHandlers.clone();
+        CopyOnWriteArrayList<RpcClientHandler> handlers =
+                (CopyOnWriteArrayList<RpcClientHandler>) this.connectedHandlers.clone();
         int size = handlers.size();
-        while (isRuning && size <= 0) {
+        while (isRunning.get() && size <= 0) {
             try {
                 boolean available = waitingForHandler();
                 if (available) {
                     handlers = (CopyOnWriteArrayList<RpcClientHandler>) this.connectedHandlers.clone();
                     size = handlers.size();
                 }
-            } catch (InterruptedException e) {
-                log.error("Waiting for available node is interrupted! ", e);
-                throw new RuntimeException("Can't connect any servers!", e);
+            } catch (InterruptedException ex) {
+                log.error("Waiting for available node is interrupted!", ex);
+                throw new RuntimeException("Can't connect any servers!", ex);
             }
         }
         int index = (roundRobin.getAndAdd(1) + size) % size;
+
         return handlers.get(index);
     }
 
     public void stop() {
-        isRuning = false;
-        for (int i = 0; i < connectedHandlers.size(); ++i) {
-            RpcClientHandler connectedServerHandler = connectedHandlers.get(i);
-            connectedServerHandler.close();
-        }
+        isRunning.set(false);
+        connectedHandlers.forEach(RpcClientHandler::close);
         signalAvailableHandler();
         threadPoolExecutor.shutdown();
         eventLoopGroup.shutdownGracefully();

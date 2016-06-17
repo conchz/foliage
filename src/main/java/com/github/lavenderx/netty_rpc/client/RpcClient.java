@@ -14,7 +14,7 @@ public class RpcClient {
     private String serverAddress;
     private ServiceDiscovery serviceDiscovery;
     private static ThreadPoolExecutor threadPoolExecutor =
-            new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(65536));
+            new ThreadPoolExecutor(16, 16, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<>(65536));
 
     public RpcClient(String serverAddress) {
         this.serverAddress = serverAddress;
@@ -44,7 +44,7 @@ public class RpcClient {
     public void stop() {
         threadPoolExecutor.shutdown();
         serviceDiscovery.stop();
-        ConnectManage.getInstance().stop();
+        ConnectionManager.getInstance().stop();
     }
 }
 

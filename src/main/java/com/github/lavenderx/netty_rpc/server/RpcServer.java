@@ -30,16 +30,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RpcServer implements ApplicationContextAware, InitializingBean {
 
-    private String serverAddress;
-    private ServiceRegistry serviceRegistry;
+    private volatile static ThreadPoolExecutor threadPoolExecutor;
 
-    private Map<String, Object> handlerMap = new HashMap<>();
-
-    private static ThreadPoolExecutor threadPoolExecutor;
-
-    public RpcServer(String serverAddress) {
-        this.serverAddress = serverAddress;
-    }
+    private final Map<String, Object> handlerMap = new HashMap<>();
+    private final String serverAddress;
+    private final ServiceRegistry serviceRegistry;
 
     public RpcServer(String serverAddress, ServiceRegistry serviceRegistry) {
         this.serverAddress = serverAddress;
@@ -99,7 +94,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         if (threadPoolExecutor == null) {
             synchronized (RpcServer.class) {
                 if (threadPoolExecutor == null) {
-                    threadPoolExecutor = new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
+                    threadPoolExecutor = new ThreadPoolExecutor(16, 16, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<>(65536));
                 }
             }
         }

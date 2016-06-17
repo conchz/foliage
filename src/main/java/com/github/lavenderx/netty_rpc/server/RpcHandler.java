@@ -6,16 +6,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+@Slf4j
 public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcHandler.class);
 
     private final Map<String, Object> handlerMap;
 
@@ -25,26 +23,23 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) throws Exception {
-        RpcServer.submit(new Runnable() {
-            @Override
-            public void run() {
-                LOGGER.debug("Receive request " + request.getRequestId());
-                RpcResponse response = new RpcResponse();
-                response.setRequestId(request.getRequestId());
-                try {
-                    Object result = handle(request);
-                    response.setResult(result);
-                } catch (Throwable t) {
-                    response.setError(t.toString());
-                    LOGGER.error("RPC Server handle request error", t);
-                }
-                ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                        LOGGER.debug("Send response for request " + request.getRequestId());
-                    }
-                });
+        RpcServer.submit(() -> {
+            log.debug("Receive request {}", request.getRequestId());
+            RpcResponse response = new RpcResponse();
+            response.setRequestId(request.getRequestId());
+            try {
+                Object result = handle(request);
+                response.setResult(result);
+            } catch (Throwable t) {
+                response.setError(t.toString());
+                log.error("RPC Server handle request error", t);
             }
+            ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    log.debug("Send response for request {}", request.getRequestId());
+                }
+            });
         });
     }
 
@@ -57,19 +52,19 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
         Class<?>[] parameterTypes = request.getParameterTypes();
         Object[] parameters = request.getParameters();
 
-        LOGGER.debug(serviceClass.getName());
-        LOGGER.debug(methodName);
-        for (int i = 0; i < parameterTypes.length; ++i) {
-            LOGGER.debug(parameterTypes[i].getName());
+        log.debug(serviceClass.getName());
+        log.debug(methodName);
+        for (Class<?> parameterType : parameterTypes) {
+            log.debug(parameterType.getName());
         }
-        for (int i = 0; i < parameters.length; ++i) {
-            LOGGER.debug(parameters[i].toString());
+        for (Object parameter : parameters) {
+            log.debug(parameter.toString());
         }
 
         // JDK reflect
-        /*Method method = serviceClass.getMethod(methodName, parameterTypes);
-        method.setAccessible(true);
-        return method.invoke(serviceBean, parameters);*/
+//        Method method = serviceClass.getMethod(methodName, parameterTypes);
+//        method.setAccessible(true);
+//        return method.invoke(serviceBean, parameters);
 
         // Cglib reflect
         FastClass serviceFastClass = FastClass.create(serviceClass);
@@ -79,7 +74,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.error("server caught exception", cause);
+        log.error("server caught exception", cause);
         ctx.close();
     }
 }

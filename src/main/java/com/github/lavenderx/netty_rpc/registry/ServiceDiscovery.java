@@ -1,9 +1,8 @@
 package com.github.lavenderx.netty_rpc.registry;
 
-import com.github.lavenderx.netty_rpc.client.ConnectManage;
+import com.github.lavenderx.netty_rpc.client.ConnectionManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
@@ -16,18 +15,17 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class ServiceDiscovery {
 
-    private CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch = new CountDownLatch(1);
+    private final String registryAddress;
+    private final ZooKeeper zookeeper;
 
     private volatile List<String> dataList = new ArrayList<>();
 
-    private String registryAddress;
-    private ZooKeeper zookeeper;
-
     public ServiceDiscovery(String registryAddress) {
         this.registryAddress = registryAddress;
-        zookeeper = connectServer();
-        if (zookeeper != null) {
-            watchNode(zookeeper);
+        this.zookeeper = connectServer();
+        if (this.zookeeper != null) {
+            watchNode(this.zookeeper);
         }
     }
 
@@ -49,29 +47,23 @@ public class ServiceDiscovery {
     private ZooKeeper connectServer() {
         ZooKeeper zk = null;
         try {
-            zk = new ZooKeeper(registryAddress, Constants.ZK_SESSION_TIMEOUT, new Watcher() {
-                @Override
-                public void process(WatchedEvent event) {
-                    if (event.getState() == Event.KeeperState.SyncConnected) {
-                        latch.countDown();
-                    }
+            zk = new ZooKeeper(registryAddress, Constants.ZK_SESSION_TIMEOUT, event -> {
+                if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
+                    latch.countDown();
                 }
             });
             latch.await();
-        } catch (IOException | InterruptedException e) {
-            log.error("", e);
+        } catch (IOException | InterruptedException ex) {
+            log.error("", ex);
         }
         return zk;
     }
 
     private void watchNode(final ZooKeeper zk) {
         try {
-            List<String> nodeList = zk.getChildren(Constants.ZK_REGISTRY_PATH, new Watcher() {
-                @Override
-                public void process(WatchedEvent event) {
-                    if (event.getType() == Event.EventType.NodeChildrenChanged) {
-                        watchNode(zk);
-                    }
+            List<String> nodeList = zk.getChildren(Constants.ZK_REGISTRY_PATH, event -> {
+                if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
+                    watchNode(zk);
                 }
             });
             List<String> dataList = new ArrayList<>();
@@ -84,21 +76,21 @@ public class ServiceDiscovery {
 
             log.debug("Service discovery triggered updating connected server node.");
             UpdateConnectedServer();
-        } catch (KeeperException | InterruptedException e) {
-            log.error("", e);
+        } catch (KeeperException | InterruptedException ex) {
+            log.error("", ex);
         }
     }
 
     private void UpdateConnectedServer() {
-        ConnectManage.getInstance().updateConnectedServer(this.dataList);
+        ConnectionManager.getInstance().updateConnectedServer(this.dataList);
     }
 
     public void stop() {
-        if (zookeeper != null) {
+        if (this.zookeeper != null) {
             try {
-                zookeeper.close();
-            } catch (InterruptedException e) {
-                log.error("", e);
+                this.zookeeper.close();
+            } catch (InterruptedException ex) {
+                log.error("", ex);
             }
         }
     }

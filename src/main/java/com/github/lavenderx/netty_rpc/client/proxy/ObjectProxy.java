@@ -1,6 +1,6 @@
 package com.github.lavenderx.netty_rpc.client.proxy;
 
-import com.github.lavenderx.netty_rpc.client.ConnectManage;
+import com.github.lavenderx.netty_rpc.client.ConnectionManager;
 import com.github.lavenderx.netty_rpc.client.RpcClientHandler;
 import com.github.lavenderx.netty_rpc.client.RpcFuture;
 import com.github.lavenderx.netty_rpc.protocol.RpcRequest;
@@ -28,9 +28,9 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
             } else if ("hashCode".equals(name)) {
                 return System.identityHashCode(proxy);
             } else if ("toString".equals(name)) {
-                return proxy.getClass().getName() + "@" +
-                        Integer.toHexString(System.identityHashCode(proxy)) +
-                        ", with InvocationHandler " + this;
+                return proxy.getClass().getName() + "@"
+                        + Integer.toHexString(System.identityHashCode(proxy))
+                        + ", with InvocationHandler " + this;
             } else {
                 throw new IllegalStateException(String.valueOf(method));
             }
@@ -42,25 +42,27 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());
         request.setParameters(args);
+
         // Debug
         log.debug(method.getDeclaringClass().getName());
         log.debug(method.getName());
-        for (int i = 0; i < method.getParameterTypes().length; ++i) {
+        for (int i = 0, l = method.getParameterTypes().length; i < l; ++i) {
             log.debug(method.getParameterTypes()[i].getName());
         }
 
-        for (int i = 0; i < args.length; ++i) {
-            log.debug(args[i].toString());
+        for (Object arg : args) {
+            log.debug(arg.toString());
         }
 
-        RpcClientHandler handler = ConnectManage.getInstance().chooseHandler();
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler();
         RpcFuture rpcFuture = handler.sendRequest(request);
+
         return rpcFuture.get();
     }
 
     @Override
     public RpcFuture call(String funcName, Object... args) {
-        RpcClientHandler handler = ConnectManage.getInstance().chooseHandler();
+        RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler();
         RpcRequest request = createRequest(this.clazz.getName(), funcName, args);
         RpcFuture rpcFuture = handler.sendRequest(request);
 
@@ -76,18 +78,18 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
 
         Class[] parameterTypes = new Class[args.length];
         // Get the right class type
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0, l = args.length; i < l; i++) {
             parameterTypes[i] = getClassType(args[i]);
         }
         request.setParameterTypes(parameterTypes);
 
         log.debug(className);
         log.debug(methodName);
-        for (int i = 0; i < parameterTypes.length; ++i) {
-            log.debug(parameterTypes[i].getName());
+        for (Class parameterType : parameterTypes) {
+            log.debug(parameterType.getName());
         }
-        for (int i = 0; i < args.length; ++i) {
-            log.debug(args[i].toString());
+        for (Object arg : args) {
+            log.debug(arg.toString());
         }
 
         return request;

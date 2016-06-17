@@ -15,9 +15,8 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ServiceRegistry {
 
-    private CountDownLatch latch = new CountDownLatch(1);
-
-    private String registryAddress;
+    private final CountDownLatch latch = new CountDownLatch(1);
+    private final String registryAddress;
 
     public ServiceRegistry(String registryAddress) {
         this.registryAddress = registryAddress;
@@ -55,20 +54,30 @@ public class ServiceRegistry {
         try {
             Stat s = zk.exists(Constants.ZK_REGISTRY_PATH, false);
             if (s == null) {
-                zk.create(Constants.ZK_REGISTRY_PATH, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zk.create(
+                        Constants.ZK_REGISTRY_PATH,
+                        new byte[0],
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                        CreateMode.PERSISTENT
+                );
             }
-        } catch (KeeperException | InterruptedException e) {
-            log.error(e.toString());
+        } catch (KeeperException | InterruptedException ex) {
+            log.error("", ex);
         }
     }
 
     private void createNode(ZooKeeper zk, String data) {
         try {
             byte[] bytes = data.getBytes();
-            String path = zk.create(Constants.ZK_DATA_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+            String path = zk.create(
+                    Constants.ZK_DATA_PATH,
+                    bytes,
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.EPHEMERAL_SEQUENTIAL
+            );
             log.debug("create zookeeper node ({} => {})", path, data);
-        } catch (KeeperException | InterruptedException e) {
-            log.error("", e);
+        } catch (KeeperException | InterruptedException ex) {
+            log.error("", ex);
         }
     }
 }

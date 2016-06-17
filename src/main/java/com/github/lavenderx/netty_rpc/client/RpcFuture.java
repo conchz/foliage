@@ -16,15 +16,15 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class RpcFuture implements Future<Object> {
 
-    private Sync sync;
-    private RpcRequest request;
+    private final Sync sync;
+    private final RpcRequest request;
+    private final long startTime;
+    private final long responseTimeThreshold = 5000;
+
+    private final List<AsyncRpcCallback> pendingCallbacks = new ArrayList<>();
+    private final ReentrantLock lock = new ReentrantLock();
+
     private RpcResponse response;
-    private long startTime;
-
-    private long responseTimeThreshold = 5000;
-
-    private List<AsyncRpcCallback> pendingCallbacks = new ArrayList<AsyncRpcCallback>();
-    private ReentrantLock lock = new ReentrantLock();
 
     public RpcFuture(RpcRequest request) {
         this.sync = new Sync();
@@ -48,7 +48,8 @@ public class RpcFuture implements Future<Object> {
     }
 
     @Override
-    public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public Object get(long timeout, TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
         boolean success = sync.tryAcquireNanos(-1, unit.toNanos(timeout));
         if (success) {
             if (this.response != null) {
@@ -73,23 +74,22 @@ public class RpcFuture implements Future<Object> {
         throw new UnsupportedOperationException();
     }
 
-    public void done(RpcResponse reponse) {
-        this.response = reponse;
+    public void done(RpcResponse response) {
+        this.response = response;
         sync.release(1);
         invokeCallbacks();
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
         if (responseTime > this.responseTimeThreshold) {
-            log.warn("Service response time is too slow. Request id = " + reponse.getRequestId() + ". Response Time = " + responseTime + "ms");
+            log.warn("Service response time is too slow. Request id = {}. Response Time = {}ms",
+                    response.getRequestId(), responseTime);
         }
     }
 
     private void invokeCallbacks() {
         lock.lock();
         try {
-            for (final AsyncRpcCallback callback : pendingCallbacks) {
-                runCallback(callback);
-            }
+            pendingCallbacks.forEach(this::runCallback);
         } finally {
             lock.unlock();
         }
@@ -111,28 +111,24 @@ public class RpcFuture implements Future<Object> {
 
     private void runCallback(final AsyncRpcCallback callback) {
         final RpcResponse res = this.response;
-        RpcClient.submit(new Runnable() {
-            @Override
-            public void run() {
-                if (!res.isError()) {
-                    callback.success(res.getResult());
-                } else {
-                    callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
-                }
+        RpcClient.submit(() -> {
+            if (!res.isError()) {
+                callback.success(res.getResult());
+            } else {
+                callback.fail(new RuntimeException("Response error", new Throwable(res.getError())));
             }
         });
     }
 
     static class Sync extends AbstractQueuedSynchronizer {
+        private static final long serialVersionUID = -3234409599877003143L;
 
-        private static final long serialVersionUID = 1L;
-
-        //future status
+        // Future status
         private final int done = 1;
         private final int pending = 0;
 
         protected boolean tryAcquire(int acquires) {
-            return getState() == done ? true : false;
+            return getState() == done;
         }
 
         protected boolean tryRelease(int releases) {
