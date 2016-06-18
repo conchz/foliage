@@ -1,0 +1,6 @@
+group 'com.github.lavenderx'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile project(':foliage-rpc')
+}

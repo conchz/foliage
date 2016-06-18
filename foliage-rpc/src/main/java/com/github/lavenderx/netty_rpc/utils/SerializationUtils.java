@@ -33,10 +33,10 @@ public final class SerializationUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> byte[] serialize(T obj) {
-        Class<T> cls = (Class<T>) obj.getClass();
+        Class<T> clazz = (Class<T>) obj.getClass();
         LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
-            Schema<T> schema = getSchema(cls);
+            Schema<T> schema = getSchema(clazz);
             return ProtostuffIOUtil.toByteArray(obj, schema, buffer);
         } catch (final Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);

@@ -11,11 +11,11 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 @Slf4j
-public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
+public class RpcProxy<T> implements InvocationHandler, IAsyncProxy {
 
     private final Class<T> clazz;
 
-    public ObjectProxy(Class<T> clazz) {
+    public RpcProxy(Class<T> clazz) {
         this.clazz = clazz;
     }
 

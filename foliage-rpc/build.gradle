@@ -1,0 +1,16 @@
+group 'com.github.lavenderx'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile 'io.netty:netty-all:4.0.37.Final'
+    compile "org.springframework:spring-context:${springVersion}"
+    compile "com.dyuproject.protostuff:protostuff-core:${protostuffVersion}"
+    compile "com.dyuproject.protostuff:protostuff-runtime:${protostuffVersion}"
+    compile('org.apache.zookeeper:zookeeper:3.4.8') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    compile 'org.objenesis:objenesis:2.4'
+    compile 'cglib:cglib:3.2.3'
+    compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+}

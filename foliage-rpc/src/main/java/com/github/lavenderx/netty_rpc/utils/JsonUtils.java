@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("unused")
 public final class JsonUtils {
     private static ObjectMapper objectMapper = new ObjectMapper();
 

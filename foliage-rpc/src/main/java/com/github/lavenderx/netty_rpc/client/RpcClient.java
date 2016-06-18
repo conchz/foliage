@@ -1,7 +1,7 @@
 package com.github.lavenderx.netty_rpc.client;
 
-import com.github.lavenderx.netty_rpc.client.proxy.IAsyncObjectProxy;
-import com.github.lavenderx.netty_rpc.client.proxy.ObjectProxy;
+import com.github.lavenderx.netty_rpc.client.proxy.IAsyncProxy;
+import com.github.lavenderx.netty_rpc.client.proxy.RpcProxy;
 import com.github.lavenderx.netty_rpc.registry.ServiceDiscovery;
 
 import java.lang.reflect.Proxy;
@@ -29,12 +29,12 @@ public class RpcClient {
         return (T) Proxy.newProxyInstance(
                 interfaceClass.getClassLoader(),
                 new Class<?>[]{interfaceClass},
-                new ObjectProxy<T>(interfaceClass)
+                new RpcProxy<T>(interfaceClass)
         );
     }
 
-    public static <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
-        return new ObjectProxy<T>(interfaceClass);
+    public static <T> IAsyncProxy createAsync(Class<T> interfaceClass) {
+        return new RpcProxy<T>(interfaceClass);
     }
 
     public static void submit(Runnable task) {
