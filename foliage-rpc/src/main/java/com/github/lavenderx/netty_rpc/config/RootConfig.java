@@ -6,20 +6,13 @@ import com.github.lavenderx.netty_rpc.registry.ServiceRegistry;
 import com.github.lavenderx.netty_rpc.server.RpcServer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
 
 @Order(0)
 @Configuration
-@ComponentScan(basePackages = "com.github.lavenderx.netty_rpc.*",
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.ASSIGNABLE_TYPE,
-                value = {RootConfig.class})
-)
 @PropertySource("classpath:rpc.properties")
 public class RootConfig {
 

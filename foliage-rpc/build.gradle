@@ -10,7 +10,7 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
     compile 'org.objenesis:objenesis:2.4'
-    compile 'cglib:cglib:3.2.3'
+    compile 'cglib:cglib:3.1'
     compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 }
