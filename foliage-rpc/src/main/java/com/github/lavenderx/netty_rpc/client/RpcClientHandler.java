@@ -10,13 +10,12 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.SocketAddress;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
-    private final Map<String, RpcFuture> pendingRpc = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, RpcFuture> pendingRpc = new ConcurrentHashMap<>();
 
     private volatile Channel channel;
     private SocketAddress remotePeer;
@@ -32,13 +31,13 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        this.remotePeer = this.channel.remoteAddress();
+        remotePeer = channel.remoteAddress();
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
-        this.channel = ctx.channel();
+        channel = ctx.channel();
     }
 
     @Override

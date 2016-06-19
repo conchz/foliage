@@ -14,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,10 +32,10 @@ public class ConnectionManager {
 
     private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private final ThreadPoolExecutor threadPoolExecutor =
-            new ThreadPoolExecutor(16, 16, 600L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(65536));
+            new ThreadPoolExecutor(16, 16, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<>(65536));
 
     private final CopyOnWriteArrayList<RpcClientHandler> connectedHandlers = new CopyOnWriteArrayList<>();
-    private final Map<InetSocketAddress, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<InetSocketAddress, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition connected = lock.newCondition();
@@ -150,7 +149,7 @@ public class ConnectionManager {
     private boolean waitingForHandler() throws InterruptedException {
         lock.lock();
         try {
-            return connected.await(this.connectTimeoutMillis, TimeUnit.MILLISECONDS);
+            return connected.await(connectTimeoutMillis, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }
@@ -159,13 +158,13 @@ public class ConnectionManager {
     @SuppressWarnings("unchecked")
     public RpcClientHandler chooseHandler() {
         CopyOnWriteArrayList<RpcClientHandler> handlers =
-                (CopyOnWriteArrayList<RpcClientHandler>) this.connectedHandlers.clone();
+                (CopyOnWriteArrayList<RpcClientHandler>) connectedHandlers.clone();
         int size = handlers.size();
         while (isRunning.get() && size <= 0) {
             try {
                 boolean available = waitingForHandler();
                 if (available) {
-                    handlers = (CopyOnWriteArrayList<RpcClientHandler>) this.connectedHandlers.clone();
+                    handlers = (CopyOnWriteArrayList<RpcClientHandler>) connectedHandlers.clone();
                     size = handlers.size();
                 }
             } catch (InterruptedException ex) {

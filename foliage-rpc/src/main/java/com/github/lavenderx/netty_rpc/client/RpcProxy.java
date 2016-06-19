@@ -1,8 +1,5 @@
-package com.github.lavenderx.netty_rpc.client.proxy;
+package com.github.lavenderx.netty_rpc.client;
 
-import com.github.lavenderx.netty_rpc.client.ConnectionManager;
-import com.github.lavenderx.netty_rpc.client.RpcClientHandler;
-import com.github.lavenderx.netty_rpc.client.RpcFuture;
 import com.github.lavenderx.netty_rpc.protocol.RpcRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 @Slf4j
-public class RpcProxy<T> implements InvocationHandler, IAsyncProxy {
+public class RpcProxy<T> implements InvocationHandler {
 
     private final Class<T> clazz;
 
@@ -60,7 +57,6 @@ public class RpcProxy<T> implements InvocationHandler, IAsyncProxy {
         return rpcFuture.get();
     }
 
-    @Override
     public RpcFuture call(String funcName, Object... args) {
         RpcClientHandler handler = ConnectionManager.getInstance().chooseHandler();
         RpcRequest request = createRequest(this.clazz.getName(), funcName, args);

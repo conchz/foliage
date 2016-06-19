@@ -40,8 +40,8 @@ public class RpcFuture implements Future<Object> {
     @Override
     public Object get() throws InterruptedException, ExecutionException {
         sync.acquire(-1);
-        if (this.response != null) {
-            return this.response.getResult();
+        if (response != null) {
+            return response.getResult();
         } else {
             return null;
         }
@@ -52,15 +52,15 @@ public class RpcFuture implements Future<Object> {
             throws InterruptedException, ExecutionException, TimeoutException {
         boolean success = sync.tryAcquireNanos(-1, unit.toNanos(timeout));
         if (success) {
-            if (this.response != null) {
-                return this.response.getResult();
+            if (response != null) {
+                return response.getResult();
             } else {
                 return null;
             }
         } else {
-            throw new RuntimeException("Timeout exception. Request id: " + this.request.getRequestId()
-                    + ". Request class name: " + this.request.getClassName()
-                    + ". Request method: " + this.request.getMethodName());
+            throw new RuntimeException("Timeout exception. Request id: " + request.getRequestId()
+                    + ". Request class name: " + request.getClassName()
+                    + ". Request method: " + request.getMethodName());
         }
     }
 
@@ -78,9 +78,10 @@ public class RpcFuture implements Future<Object> {
         this.response = response;
         sync.release(1);
         invokeCallbacks();
+
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
-        if (responseTime > this.responseTimeThreshold) {
+        if (responseTime > responseTimeThreshold) {
             log.warn("Service response time is too slow. Request id = {}. Response Time = {}ms",
                     response.getRequestId(), responseTime);
         }
@@ -101,16 +102,17 @@ public class RpcFuture implements Future<Object> {
             if (isDone()) {
                 runCallback(callback);
             } else {
-                this.pendingCallbacks.add(callback);
+                pendingCallbacks.add(callback);
             }
         } finally {
             lock.unlock();
         }
+
         return this;
     }
 
     private void runCallback(final AsyncRpcCallback callback) {
-        final RpcResponse res = this.response;
+        final RpcResponse res = response;
         RpcClient.submit(() -> {
             if (!res.isError()) {
                 callback.success(res.getResult());
