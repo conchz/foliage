@@ -12,7 +12,7 @@ gradle-app.setting
 *.log
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 
