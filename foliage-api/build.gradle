@@ -1,0 +1,41 @@
+group 'com.github.lavenderx'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.5'
+    }
+}
+
+apply plugin: 'jetty'
+apply plugin: 'com.bluepapa32.watch'
+
+jettyRun {
+    contextPath = '/'
+    httpPort = 9001
+    reload = 'automatic'
+    scanIntervalSeconds = 1
+}
+
+// http://benweizhu.github.io/blog/2014/07/27/gradle-jetty-plugin-hot-deploy/
+watch {
+    java {
+        files files('src/main/java')
+        tasks 'compileJava'
+    }
+
+    resources {
+        files fileTree(dir: 'src/main/resources', include: '**/*.properties')
+        tasks 'processResources'
+    }
+}
+
+dependencies {
+    compile "org.springframework:spring-webmvc:${springVersion}"
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+
+    compile project(':foliage-rpc')
+}
