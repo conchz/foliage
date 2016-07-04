@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 dependencies {
     compile 'io.netty:netty-all:4.1.2.Final'
-    compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework:spring-webmvc:${springVersion}"
     compile "io.protostuff:protostuff-core:${protostuffVersion}"
     compile "io.protostuff:protostuff-json:${protostuffVersion}"
     compile "io.protostuff:protostuff-runtime:${protostuffVersion}"

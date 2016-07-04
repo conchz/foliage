@@ -6,36 +6,46 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.bluepapa32:gradle-watch-plugin:0.1.5'
     }
 }
 
-apply plugin: 'jetty'
-apply plugin: 'com.bluepapa32.watch'
+apply plugin: 'application'
 
-jettyRun {
-    contextPath = '/'
-    httpPort = 9001
-    reload = 'automatic'
-    scanIntervalSeconds = 1
+int httpPort = 9006
+mainClassName = 'org.lavenderx.foliage.api.ApiBootstrap'
+
+configurations {
+    // https://sinking.in/blog/provided-scope-in-gradle/
+    provided
 }
 
-// http://benweizhu.github.io/blog/2014/07/27/gradle-jetty-plugin-hot-deploy/
-watch {
-    java {
-        files files('src/main/java')
-        tasks 'compileJava'
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
     }
+    test {
+        compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
+    }
+}
 
-    resources {
-        files fileTree(dir: 'src/main/resources', include: '**/*.properties')
-        tasks 'processResources'
-    }
+run {
+    jvmArgs "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=${httpPort}"
+}
+
+task debugApp(dependsOn: 'classes', type: JavaExec) {
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    debug = true
+    jvmArgs = ["-Xdebug", "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=${httpPort}"]
 }
 
 dependencies {
-    compile "org.springframework:spring-webmvc:${springVersion}"
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    compile "io.undertow:undertow-core:${undertowVersion}"
+    compile "io.undertow:undertow-servlet:${undertowVersion}"
+
+    provided 'javax.servlet:javax.servlet-api:3.1.0'
 
     compile project(':foliage-rpc')
 }
