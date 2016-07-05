@@ -4,7 +4,7 @@ import org.lavenderx.foliage.nettyrpc.client.RpcClient;
 import org.lavenderx.foliage.nettyrpc.client.RpcFuture;
 import org.lavenderx.foliage.nettyrpc.client.RpcProxy;
 import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery;
-import org.lavenderx.foliage.nettyrpc.rpcservice.HelloService;
+import org.lavenderx.foliage.nettyrpc.rpcservice.HelloRpcService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +24,7 @@ public class BenchmarkAsync {
             threads[i] = new Thread(() -> {
                 for (int j = 0; j < requestNum; j++) {
                     try {
-                        RpcProxy<HelloService> client = rpcClient.createAsync(HelloService.class);
+                        RpcProxy<HelloRpcService> client = rpcClient.createAsync(HelloRpcService.class);
                         RpcFuture helloFuture = client.call("hello", Integer.toString(j));
                         String result = (String) helloFuture.get(3000, TimeUnit.MILLISECONDS);
 //                        System.out.println(result);

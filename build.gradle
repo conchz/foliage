@@ -11,6 +11,7 @@ subprojects {
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
     ext {
+        guavaVersion = '19.0'
         jacksonVersion = '2.7.5'
         protostuffVersion = '1.4.4'
         slf4jVersion = '1.7.21'
@@ -28,6 +29,7 @@ subprojects {
 
                 force "org.slf4j:slf4j-api:${slf4jVersion}"
                 force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+                force "com.google.guava:guava:${guavaVersion}"
             }
         }
     }
@@ -41,7 +43,7 @@ subprojects {
     dependencies {
         compile 'ch.qos.logback:logback-classic:1.1.7'
         compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
-        compile 'com.google.guava:guava:19.0'
+        compile "com.google.guava:guava:${guavaVersion}"
         compile 'org.projectlombok:lombok:1.16.8'
         compile 'org.apache.commons:commons-collections4:4.1'
 

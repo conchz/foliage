@@ -1,7 +1,5 @@
 package org.lavenderx.foliage.nettyrpc.server;
 
-import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest;
-import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +7,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse;
 
 import java.util.Map;
 
@@ -74,7 +74,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("server caught exception", cause);
+        log.error("Server caught exception", cause);
         ctx.close();
     }
 }

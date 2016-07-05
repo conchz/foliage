@@ -26,7 +26,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(ApiConfig.class);
         // Since we registered RootConfig instead of passing it to the constructor
-        rootContext.refresh();
+//        rootContext.refresh();
 
         // Manage the lifecycle of the root appContext
         servletContext.addListener(new ContextLoaderListener(rootContext));

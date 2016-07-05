@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan("com.github.lavenderx.rpc.sample.server")
+@ComponentScan("org.lavenderx.foliage.sample.listener")
 @Import(RootConfig.class)
 public class ServerConfig {
 

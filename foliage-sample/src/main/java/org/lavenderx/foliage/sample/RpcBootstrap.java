@@ -1,4 +1,4 @@
-package org.lavenderx.foliage.sample.server;
+package org.lavenderx.foliage.sample;
 
 import org.lavenderx.foliage.sample.config.ServerConfig;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

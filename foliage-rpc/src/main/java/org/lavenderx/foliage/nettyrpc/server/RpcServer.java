@@ -1,10 +1,5 @@
 package org.lavenderx.foliage.nettyrpc.server;
 
-import org.lavenderx.foliage.nettyrpc.protocol.RpcDecoder;
-import org.lavenderx.foliage.nettyrpc.protocol.RpcEncoder;
-import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest;
-import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse;
-import org.lavenderx.foliage.nettyrpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -16,6 +11,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.lavenderx.foliage.nettyrpc.annotation.RpcListenerContainer;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcDecoder;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcEncoder;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest;
+import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse;
+import org.lavenderx.foliage.nettyrpc.registry.ServiceRegistry;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -43,10 +44,15 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     @Override
     public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(RpcService.class);
+        Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(RpcListenerContainer.class);
         if (MapUtils.isNotEmpty(serviceBeanMap)) {
             for (Object serviceBean : serviceBeanMap.values()) {
-                String interfaceName = serviceBean.getClass().getName();
+                String interfaceName = serviceBean
+                        .getClass()
+                        .getAnnotation(RpcListenerContainer.class)
+                        .value()
+                        .getName();
+
                 handlerMap.put(interfaceName, serviceBean);
             }
         }
