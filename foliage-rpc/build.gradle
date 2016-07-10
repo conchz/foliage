@@ -5,7 +5,6 @@ dependencies {
     compile 'io.netty:netty-all:4.1.2.Final'
     compile "org.springframework:spring-webmvc:${springVersion}"
     compile "io.protostuff:protostuff-core:${protostuffVersion}"
-    compile "io.protostuff:protostuff-json:${protostuffVersion}"
     compile "io.protostuff:protostuff-runtime:${protostuffVersion}"
     compile('org.apache.zookeeper:zookeeper:3.4.8') {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
@@ -13,6 +12,4 @@ dependencies {
     compile 'org.reflections:reflections:0.9.10'
     compile 'org.objenesis:objenesis:2.4'
     compile 'cglib:cglib:3.1'
-    compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-    compile "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
 }
