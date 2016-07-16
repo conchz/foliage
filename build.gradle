@@ -1,9 +1,21 @@
 group 'com.github.lavenderx'
 version '1.0-SNAPSHOT'
 
+buildscript {
+    ext.kotlin_version = '1.0.3'
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 subprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
+    apply plugin: 'kotlin'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -11,12 +23,12 @@ subprojects {
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
     ext {
-        guavaVersion = '19.0'
-        protostuffVersion = '1.4.4'
-        slf4jVersion = '1.7.21'
-        springVersion = '4.3.1.RELEASE'
-        springbootVersion = '1.3.5.RELEASE'
-        undertowVersion = '1.3.23.Final'
+        guava_version = '19.0'
+        protostuff_version = '1.4.4'
+        slf4j_version = '1.7.21'
+        spring_version = '4.3.1.RELEASE'
+        springboot_version = '1.3.5.RELEASE'
+        undertow_version = '1.3.23.Final'
     }
 
     configurations {
@@ -26,8 +38,8 @@ subprojects {
             resolutionStrategy {
                 failOnVersionConflict()
 
-                force "org.slf4j:slf4j-api:${slf4jVersion}"
-                force "com.google.guava:guava:${guavaVersion}"
+                force "org.slf4j:slf4j-api:$slf4j_version"
+                force "com.google.guava:guava:$guava_version"
             }
         }
     }
@@ -39,13 +51,16 @@ subprojects {
     }
 
     dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
         compile 'ch.qos.logback:logback-classic:1.1.7'
-        compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
-        compile "com.google.guava:guava:${guavaVersion}"
+        compile "org.slf4j:jcl-over-slf4j:$slf4j_version"
+        compile "com.google.guava:guava:$guava_version"
         compile 'org.projectlombok:lombok:1.16.8'
         compile 'org.apache.commons:commons-collections4:4.1'
 
         testCompile 'junit:junit:4.12'
+        testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     }
 
     tasks.withType(JavaCompile) {

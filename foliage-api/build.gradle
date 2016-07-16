@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'application'
 
 int httpPort = 9006
-mainClassName = 'org.lavenderx.foliage.api.ApiBootstrap'
+mainClassName = 'org.lavenderx.foliage.api.ApiBootstrapKt'
 
 configurations {
     // https://sinking.in/blog/provided-scope-in-gradle/
@@ -31,19 +31,19 @@ sourceSets {
 }
 
 run {
-    jvmArgs "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=${httpPort}"
+    jvmArgs "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=$httpPort"
 }
 
 task debugApp(dependsOn: 'classes', type: JavaExec) {
     main = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     debug = true
-    jvmArgs = ["-Xdebug", "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=${httpPort}"]
+    jvmArgs = ["-Xdebug", "-Dfile.encoding=UTF-8", "-Dfoliage.server.port=$httpPort"]
 }
 
 dependencies {
-    compile "io.undertow:undertow-core:${undertowVersion}"
-    compile "io.undertow:undertow-servlet:${undertowVersion}"
+    compile "io.undertow:undertow-core:$undertow_version"
+    compile "io.undertow:undertow-servlet:$undertow_version"
 
     provided 'javax.servlet:javax.servlet-api:3.1.0'
 
