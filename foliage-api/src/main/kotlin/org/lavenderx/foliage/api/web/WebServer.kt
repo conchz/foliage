@@ -11,7 +11,7 @@ import io.undertow.servlet.util.ImmediateInstanceFactory
 import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.springframework.beans.factory.DisposableBean
 import java.io.IOException
-import java.util.HashSet
+import java.util.*
 import javax.servlet.ServletException
 
 class WebServer(val webAppName: String, val port: Int) : DisposableBean {

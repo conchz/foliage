@@ -1,9 +1,9 @@
 package org.lavenderx.foliage.api.config
 
 import com.google.common.base.CaseFormat
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.lavenderx.foliage.nettyrpc.annotation.RpcService
 import org.lavenderx.foliage.nettyrpc.client.RpcClient
+import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery
 import org.reflections.Reflections
 import org.springframework.beans.BeansException
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.io.IOException
-import java.util.Properties
+import java.util.*
 
 @Configuration
 open class RpcCallableConfig : BeanFactoryPostProcessor {
@@ -27,7 +27,7 @@ open class RpcCallableConfig : BeanFactoryPostProcessor {
 
     @Bean
     open fun serviceDiscovery(): ServiceDiscovery {
-        return ServiceDiscovery(registryAddress)
+        return ServiceDiscovery(registryAddress!!)
     }
 
     @Bean
