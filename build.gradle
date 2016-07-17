@@ -55,8 +55,6 @@ subprojects {
         compile 'ch.qos.logback:logback-classic:1.1.7'
         compile "org.slf4j:jcl-over-slf4j:$slf4j_version"
         compile "com.google.guava:guava:$guava_version"
-        compile 'org.projectlombok:lombok:1.16.8'
-        compile 'org.apache.commons:commons-collections4:4.1'
 
         testCompile 'junit:junit:4.12'
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"

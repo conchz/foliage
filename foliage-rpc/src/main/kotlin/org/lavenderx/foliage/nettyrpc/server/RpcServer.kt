@@ -7,7 +7,6 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
-import org.apache.commons.collections4.MapUtils
 import org.lavenderx.foliage.nettyrpc.annotation.RpcListenerContainer
 import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.lavenderx.foliage.nettyrpc.protocol.RpcDecoder
@@ -24,7 +23,8 @@ import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-class RpcServer(private val serverAddress: String, private val serviceRegistry: ServiceRegistry?) : ApplicationContextAware, InitializingBean {
+class RpcServer(private val serverAddress: String,
+                private val serviceRegistry: ServiceRegistry) : ApplicationContextAware, InitializingBean {
 
     private val logger = loggerFor<RpcServer>()
     private val handlerMap = HashMap<String, Any>()
@@ -32,9 +32,10 @@ class RpcServer(private val serverAddress: String, private val serviceRegistry: 
     @Throws(BeansException::class)
     override fun setApplicationContext(ctx: ApplicationContext) {
         val serviceBeanMap = ctx.getBeansWithAnnotation(RpcListenerContainer::class.java)
-        if (MapUtils.isNotEmpty(serviceBeanMap)) {
+        if (serviceBeanMap.isNotEmpty()) {
             for (serviceBean in serviceBeanMap.values) {
-                val interfaceName = serviceBean.javaClass.getAnnotation(RpcListenerContainer::class.java).value.qualifiedName!!
+                val interfaceName = serviceBean?.javaClass?.
+                        getAnnotation(RpcListenerContainer::class.java)?.value?.qualifiedName!!
 
                 handlerMap.put(interfaceName, serviceBean)
             }
@@ -62,12 +63,12 @@ class RpcServer(private val serverAddress: String, private val serviceRegistry: 
 
             val array = serverAddress.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val host = array[0]
-            val port = Integer.parseInt(array[1])
+            val port = array[1].toInt()
 
             val future = bootstrap.bind(host, port).sync()
             logger.info("RPC Server started on port {}", port)
 
-            serviceRegistry?.register(serverAddress)
+            serviceRegistry.register(serverAddress)
 
             future.channel().closeFuture().sync()
         } finally {
