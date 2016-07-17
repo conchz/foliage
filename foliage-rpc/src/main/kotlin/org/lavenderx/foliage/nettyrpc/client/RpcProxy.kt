@@ -3,9 +3,13 @@ package org.lavenderx.foliage.nettyrpc.client
 import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 import java.util.*
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
-class RpcProxy<T>(val clazz: Class<T>) : InvocationHandler {
+class RpcProxy<out T : Any>(private val clazz: Class<T>) : InvocationHandler {
 
     @Throws(Throwable::class)
     override fun invoke(proxy: Any, method: Method, args: Array<Any>): Any {
@@ -88,6 +92,31 @@ class RpcProxy<T>(val clazz: Class<T>) : InvocationHandler {
             return typeNamedClass
         } else {
             return classType
+        }
+    }
+
+    companion object {
+        private val threadPoolExecutor =
+                ThreadPoolExecutor(16, 16, 10, TimeUnit.MINUTES, ArrayBlockingQueue<Runnable>(65536))
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> create(interfaceClass: Class<T>): T {
+            return Proxy.newProxyInstance(
+                    interfaceClass.classLoader,
+                    arrayOf(interfaceClass),
+                    RpcProxy(interfaceClass)) as T
+        }
+
+        fun <T : Any> createAsync(interfaceClass: Class<T>): RpcProxy<T> {
+            return RpcProxy(interfaceClass)
+        }
+
+        fun submitTaskToProxyPool(task: Runnable) {
+            threadPoolExecutor.submit(task)
+        }
+
+        fun shutdownProxyPool() {
+            threadPoolExecutor.shutdown()
         }
     }
 }

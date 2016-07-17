@@ -108,7 +108,7 @@ class RpcFuture : Future<Any> {
 
     private fun runCallback(callback: AsyncRpcCallback) {
         val res = response
-        RpcClient.submitTaskToRpcProxyThreadPool(Runnable {
+        RpcProxy.submitTaskToProxyPool(Runnable {
             if (!res!!.isError) {
                 callback.success(res.result!!)
             } else {

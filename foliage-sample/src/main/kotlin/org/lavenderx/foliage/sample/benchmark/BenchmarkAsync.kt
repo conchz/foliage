@@ -1,6 +1,7 @@
 package org.lavenderx.foliage.sample.benchmark
 
 import org.lavenderx.foliage.nettyrpc.client.RpcClient
+import org.lavenderx.foliage.nettyrpc.client.RpcProxy
 import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery
 import org.lavenderx.foliage.nettyrpc.rpcservice.HelloRpcService
 import java.util.concurrent.TimeUnit
@@ -19,7 +20,7 @@ fun main(args: Array<String>) {
         threads[i] = Thread {
             for (j in 0..requestNum - 1) {
                 try {
-                    val client = RpcClient.createAsync(HelloRpcService::class.java)
+                    val client = RpcProxy.createAsync(HelloRpcService::class.java)
                     val helloFuture = client.call("hello", Integer.toString(j))
                     if (helloFuture.get(3000, TimeUnit.MILLISECONDS) != "Hello! " + j) {
                         println("error = " + helloFuture.get(3000, TimeUnit.MILLISECONDS)!!)

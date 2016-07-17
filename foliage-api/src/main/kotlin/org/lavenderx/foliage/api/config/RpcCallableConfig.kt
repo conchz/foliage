@@ -3,6 +3,7 @@ package org.lavenderx.foliage.api.config
 import com.google.common.base.CaseFormat
 import org.lavenderx.foliage.nettyrpc.annotation.RpcService
 import org.lavenderx.foliage.nettyrpc.client.RpcClient
+import org.lavenderx.foliage.nettyrpc.client.RpcProxy
 import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery
 import org.reflections.Reflections
@@ -49,7 +50,7 @@ open class RpcCallableConfig : BeanFactoryPostProcessor {
             val rpcClientStub = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, clazz.simpleName)
 
             logger.info("Registering rpc stub {}", rpcClientStub)
-            val rpcServiceBean = RpcClient.create(clazz)
+            val rpcServiceBean = RpcProxy.create(clazz)
             beanFactory.registerSingleton(rpcClientStub, clazz.cast(rpcServiceBean))
             beanFactory.initializeBean(clazz.cast(rpcServiceBean), rpcClientStub)
 
