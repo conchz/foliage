@@ -1,6 +1,5 @@
 package org.lavenderx.foliage.nettyrpc.client
 
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
 import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -8,11 +7,9 @@ import java.util.*
 
 class RpcProxy<T>(val clazz: Class<T>) : InvocationHandler {
 
-    private val logger = loggerFor<RpcProxy<T>>()
-
     @Throws(Throwable::class)
     override fun invoke(proxy: Any, method: Method, args: Array<Any>): Any {
-        if (Any::class.java == method.declaringClass) {
+        if (proxy.javaClass == method.declaringClass) {
             val name = method.name
             if ("equals" == name) {
                 return proxy === args[0]
@@ -30,20 +27,6 @@ class RpcProxy<T>(val clazz: Class<T>) : InvocationHandler {
         request.methodName = method.name
         request.parameterTypes = method.parameterTypes
         request.parameters = args
-
-        // Debug
-        logger.debug(method.declaringClass.name)
-        logger.debug(method.name)
-        var i = 0
-        val l = method.parameterTypes.size
-        while (i < l) {
-            logger.debug(method.parameterTypes[i].name)
-            ++i
-        }
-
-        for (arg in args) {
-            logger.debug(arg.toString())
-        }
 
         val handler = ConnectionManager.getInstance().chooseHandler()
         val rpcFuture = handler.sendRequest(request)
@@ -76,32 +59,35 @@ class RpcProxy<T>(val clazz: Class<T>) : InvocationHandler {
         }
         request.parameterTypes = parameterTypes.filterNotNull().toTypedArray()
 
-        logger.debug(className)
-        logger.debug(methodName)
-        for (parameterType in parameterTypes) {
-            logger.debug(parameterType!!.name)
-        }
-        for (arg in args) {
-            logger.debug(arg.toString())
-        }
-
         return request
     }
 
     private fun getClassType(obj: Any): Class<*> {
         val classType = obj.javaClass
-        val typeName = classType.name
-        when (typeName) {
-            "java.lang.Integer" -> return Integer.TYPE
-            "java.lang.Long" -> return java.lang.Long.TYPE
-            "java.lang.Float" -> return java.lang.Float.TYPE
-            "java.lang.Double" -> return java.lang.Double.TYPE
-            "java.lang.Character" -> return Character.TYPE
-            "java.lang.Boolean" -> return java.lang.Boolean.TYPE
-            "java.lang.Short" -> return java.lang.Short.TYPE
-            "java.lang.Byte" -> return java.lang.Byte.TYPE
+        val typeNamedClass = when (classType.name) {
+            "java.lang.Integer" -> Integer.TYPE
+            "java.lang.Long" -> java.lang.Long.TYPE
+            "java.lang.Float" -> java.lang.Float.TYPE
+            "java.lang.Double" -> java.lang.Double.TYPE
+            "java.lang.Character" -> java.lang.Character.TYPE
+            "java.lang.Boolean" -> java.lang.Boolean.TYPE
+            "java.lang.Short" -> java.lang.Short.TYPE
+            "java.lang.Byte" -> java.lang.Byte.TYPE
+            "kotlin.Int" -> kotlin.Int::class.java
+            "kotlin.Long" -> kotlin.Long::class.java
+            "kotlin.Float" -> kotlin.Float::class.java
+            "kotlin.Double" -> kotlin.Double::class.java
+            "kotlin.Char" -> kotlin.Char::class.java
+            "kotlin.Boolean" -> kotlin.Boolean::class.java
+            "kotlin.Short" -> kotlin.Short::class.java
+            "kotlin.Byte" -> kotlin.Byte::class.java
+            else -> null
         }
 
-        return classType
+        if (typeNamedClass != null) {
+            return typeNamedClass
+        } else {
+            return classType
+        }
     }
 }

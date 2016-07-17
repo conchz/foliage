@@ -22,7 +22,7 @@ class RpcClient(val serviceDiscovery: ServiceDiscovery) {
         fun <T> create(interfaceClass: Class<T>): T {
             return Proxy.newProxyInstance(
                     interfaceClass.classLoader,
-                    arrayOf<Class<*>>(interfaceClass),
+                    arrayOf(interfaceClass),
                     RpcProxy(interfaceClass)) as T
         }
 
