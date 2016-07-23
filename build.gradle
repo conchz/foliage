@@ -23,7 +23,6 @@ subprojects {
 
     ext {
         guava_version = '19.0'
-        javassist_version = '3.20.0-GA'
         protostuff_version = '1.4.4'
         slf4j_version = '1.7.21'
         spring_version = '4.3.1.RELEASE'
@@ -40,7 +39,6 @@ subprojects {
 
                 force "org.slf4j:slf4j-api:$slf4j_version"
                 force "com.google.guava:guava:$guava_version"
-                force "org.javassist:javassist:$javassist_version"
             }
         }
     }
@@ -57,7 +55,6 @@ subprojects {
         compile 'ch.qos.logback:logback-classic:1.1.7'
         compile "org.slf4j:jcl-over-slf4j:$slf4j_version"
         compile "com.google.guava:guava:$guava_version"
-        compile "org.javassist:javassist:$javassist_version"
 
         testCompile 'junit:junit:4.12'
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
