@@ -8,7 +8,7 @@ import io.undertow.servlet.api.DeploymentManager
 import io.undertow.servlet.api.ServletContainerInitializerInfo
 import io.undertow.servlet.handlers.DefaultServlet
 import io.undertow.servlet.util.ImmediateInstanceFactory
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import org.springframework.beans.factory.DisposableBean
 import java.io.IOException
 import java.util.*

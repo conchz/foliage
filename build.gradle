@@ -52,9 +52,11 @@ subprojects {
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+        compile "com.google.guava:guava:$guava_version"
         compile 'ch.qos.logback:logback-classic:1.1.7'
         compile "org.slf4j:jcl-over-slf4j:$slf4j_version"
-        compile "com.google.guava:guava:$guava_version"
+        compile 'org.apache.commons:commons-lang3:3.4'
+        compile "org.springframework:spring-webmvc:$spring_version"
 
         testCompile 'junit:junit:4.12'
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"

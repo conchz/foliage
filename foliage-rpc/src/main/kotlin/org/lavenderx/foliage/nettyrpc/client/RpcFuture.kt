@@ -1,6 +1,6 @@
 package org.lavenderx.foliage.nettyrpc.client
 
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest
 import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse
 import java.util.*

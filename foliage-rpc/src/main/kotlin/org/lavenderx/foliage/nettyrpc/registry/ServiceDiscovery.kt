@@ -3,7 +3,7 @@ package org.lavenderx.foliage.nettyrpc.registry
 import org.apache.zookeeper.KeeperException
 import org.apache.zookeeper.ZooKeeper
 import org.lavenderx.foliage.nettyrpc.client.ConnectionManager
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ThreadLocalRandom

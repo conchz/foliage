@@ -8,7 +8,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import org.lavenderx.foliage.nettyrpc.annotation.RpcListenerContainer
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import org.lavenderx.foliage.nettyrpc.protocol.RpcDecoder
 import org.lavenderx.foliage.nettyrpc.protocol.RpcEncoder
 import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest

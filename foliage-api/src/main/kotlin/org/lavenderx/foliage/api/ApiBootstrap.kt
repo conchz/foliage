@@ -1,7 +1,7 @@
 package org.lavenderx.foliage.api
 
 import org.lavenderx.foliage.api.web.WebServer
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 
 class ApiBootstrap {
     companion object {

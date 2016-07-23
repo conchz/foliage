@@ -4,7 +4,7 @@ import org.apache.zookeeper.CreateMode
 import org.apache.zookeeper.Watcher
 import org.apache.zookeeper.ZooDefs
 import org.apache.zookeeper.ZooKeeper
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import java.util.concurrent.CountDownLatch
 
 class ServiceRegistry(private val registryAddress: String) {

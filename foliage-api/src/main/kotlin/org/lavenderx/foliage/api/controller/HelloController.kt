@@ -1,6 +1,6 @@
 package org.lavenderx.foliage.api.controller
 
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import org.lavenderx.foliage.nettyrpc.rpcservice.HelloRpcService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

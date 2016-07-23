@@ -1,4 +1,4 @@
-package org.lavenderx.foliage.nettyrpc.logging
+package org.lavenderx.foliage.nettyrpc.utils
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

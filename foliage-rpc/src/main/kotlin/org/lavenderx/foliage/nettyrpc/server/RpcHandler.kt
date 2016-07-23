@@ -3,7 +3,7 @@ package org.lavenderx.foliage.nettyrpc.server
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import net.sf.cglib.reflect.FastClass
-import org.lavenderx.foliage.nettyrpc.logging.loggerFor
+import org.lavenderx.foliage.nettyrpc.utils.loggerFor
 import org.lavenderx.foliage.nettyrpc.protocol.RpcRequest
 import org.lavenderx.foliage.nettyrpc.protocol.RpcResponse
 
