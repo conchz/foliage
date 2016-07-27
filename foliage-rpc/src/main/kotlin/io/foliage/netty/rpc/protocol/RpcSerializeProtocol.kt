@@ -5,7 +5,7 @@ import org.lavenderx.foliage.nettyrpc.utils.formatToString
 
 enum class RpcSerializeProtocol(val serializeProtocol: String) {
 
-    JDK_SERIALIZATION("jdknative");
+    JDK_SERIALIZATION("jdknative"), KRYO_SERIALIZATION("kryo");
 
     fun getProtocol(): String {
         return serializeProtocol
