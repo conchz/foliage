@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 
@@ -21,7 +22,7 @@ public class RpcServerLoader {
     private volatile static RpcServerLoader rpcServerLoader;
     private final static String DELIMITER = ":";
     //默认采用Java原生序列化协议方式传输RPC消息
-    private RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.JDKSERIALIZE;
+    private RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.JDK_SERIALIZE;
 
     //方法返回到Java虚拟机的可用的处理器数量
     private final static int parallel = Runtime.getRuntime().availableProcessors() * 2;

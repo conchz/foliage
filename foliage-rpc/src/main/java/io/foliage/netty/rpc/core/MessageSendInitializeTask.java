@@ -1,5 +1,6 @@
 package io.foliage.netty.rpc.core;
 
+import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

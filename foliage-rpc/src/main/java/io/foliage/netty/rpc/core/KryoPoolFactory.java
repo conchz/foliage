@@ -3,6 +3,8 @@ package io.foliage.netty.rpc.core;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import io.foliage.netty.rpc.protocol.MessageRequest;
+import io.foliage.netty.rpc.protocol.MessageResponse;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.objenesis.strategy.StdInstantiatorStrategy;

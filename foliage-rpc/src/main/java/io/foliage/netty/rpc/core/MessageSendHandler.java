@@ -1,5 +1,7 @@
 package io.foliage.netty.rpc.core;
 
+import io.foliage.netty.rpc.protocol.MessageRequest;
+import io.foliage.netty.rpc.protocol.MessageResponse;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -14,19 +16,19 @@ public class MessageSendHandler extends ChannelInboundHandlerAdapter {
     private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap<String, MessageCallBack>();
 
     private volatile Channel channel;
-    private SocketAddress remoteAddr;
+    private SocketAddress remotePeer;
 
     public Channel getChannel() {
         return channel;
     }
 
-    public SocketAddress getRemoteAddr() {
-        return remoteAddr;
+    public SocketAddress getRemotePeer() {
+        return remotePeer;
     }
 
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        this.remoteAddr = this.channel.remoteAddress();
+        this.remotePeer = this.channel.remoteAddress();
     }
 
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {

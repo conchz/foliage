@@ -8,11 +8,8 @@ public class NamedThreadFactory implements ThreadFactory {
     private static final AtomicInteger threadNumber = new AtomicInteger(1);
 
     private final AtomicInteger mThreadNum = new AtomicInteger(1);
-
     private final String prefix;
-
-    private final boolean daemoThread;
-
+    private final boolean daemonThread;
     private final ThreadGroup threadGroup;
 
     public NamedThreadFactory() {
@@ -23,18 +20,19 @@ public class NamedThreadFactory implements ThreadFactory {
         this(prefix, false);
     }
 
-    public NamedThreadFactory(String prefix, boolean daemo) {
+    public NamedThreadFactory(String prefix, boolean daemon) {
         this.prefix = prefix + "-thread-";
-        daemoThread = daemo;
-        SecurityManager s = System.getSecurityManager();
-        threadGroup = (s == null) ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
+        daemonThread = daemon;
+        SecurityManager securityManager = System.getSecurityManager();
+        threadGroup = securityManager == null ? Thread.currentThread().getThreadGroup()
+                : securityManager.getThreadGroup();
     }
 
-    public Thread newThread(Runnable runnable) {
+    public Thread newThread(Runnable r) {
         String name = prefix + mThreadNum.getAndIncrement();
-        Thread ret = new Thread(threadGroup, runnable, name, 0);
-        ret.setDaemon(daemoThread);
-        return ret;
+        Thread t = new Thread(threadGroup, r, name, 0);
+        t.setDaemon(daemonThread);
+        return t;
     }
 
     public ThreadGroup getThreadGroup() {

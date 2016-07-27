@@ -1,7 +1,7 @@
 package io.foliage.netty.rpc;
 
 import io.foliage.netty.rpc.core.MessageSendExecutor;
-import io.foliage.netty.rpc.core.RpcSerializeProtocol;
+import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
 import org.apache.commons.lang.time.StopWatch;
 
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +36,7 @@ public class RpcParallelTest {
     //JDK本地序列化协议
     public static void JdkNativeParallelTask(MessageSendExecutor executor, int parallel) throws InterruptedException {
         String serverAddress = "127.0.0.1:18887";
-        RpcSerializeProtocol protocol = RpcSerializeProtocol.JDKSERIALIZE;
+        RpcSerializeProtocol protocol = RpcSerializeProtocol.JDK_SERIALIZE;
         executor.setRpcServerLoader(serverAddress, protocol);
         RpcParallelTest.parallelTask(executor, parallel, serverAddress, protocol);
         TimeUnit.SECONDS.sleep(3);
@@ -45,7 +45,7 @@ public class RpcParallelTest {
     //Kryo序列化协议
     public static void KryoParallelTask(MessageSendExecutor executor, int parallel) throws InterruptedException {
         String serverAddress = "127.0.0.1:18888";
-        RpcSerializeProtocol protocol = RpcSerializeProtocol.KRYOSERIALIZE;
+        RpcSerializeProtocol protocol = RpcSerializeProtocol.KRYO_SERIALIZE;
         executor.setRpcServerLoader(serverAddress, protocol);
         RpcParallelTest.parallelTask(executor, parallel, serverAddress, protocol);
         TimeUnit.SECONDS.sleep(3);
