@@ -1,7 +1,7 @@
 package org.lavenderx.foliage.sample.listener
 
-import org.lavenderx.foliage.nettyrpc.annotation.RpcListenerContainer
-import org.lavenderx.foliage.nettyrpc.rpcservice.HelloRpcService
+import io.foliage.netty.rpc.annotation.RpcListenerContainer
+import io.foliage.netty.rpc.rpcservice.HelloRpcService
 import org.springframework.stereotype.Service
 
 @Service

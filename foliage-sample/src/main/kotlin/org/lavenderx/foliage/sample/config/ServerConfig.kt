@@ -1,8 +1,8 @@
 package org.lavenderx.foliage.sample.config
 
-import org.lavenderx.foliage.nettyrpc.config.RootConfig
-import org.lavenderx.foliage.nettyrpc.registry.ServiceRegistry
-import org.lavenderx.foliage.nettyrpc.server.RpcServer
+import io.foliage.netty.rpc.config.RootConfig
+import io.foliage.netty.rpc.registry.ServiceRegistry
+import io.foliage.netty.rpc.server.RpcServer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan

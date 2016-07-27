@@ -1,9 +1,9 @@
 package org.lavenderx.foliage.sample.benchmark
 
-import org.lavenderx.foliage.nettyrpc.client.RpcClient
-import org.lavenderx.foliage.nettyrpc.client.RpcProxy
-import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery
-import org.lavenderx.foliage.nettyrpc.rpcservice.HelloRpcService
+import io.foliage.netty.rpc.client.RpcClient
+import io.foliage.netty.rpc.client.RpcProxy
+import io.foliage.netty.rpc.registry.ServiceDiscovery
+import io.foliage.netty.rpc.rpcservice.HelloRpcService
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {

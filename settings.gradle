@@ -3,4 +3,5 @@ rootProject.name = 'foliage'
 include 'foliage-rpc'
 include 'foliage-sample'
 include 'foliage-api'
+include 'foliage-utils'
 

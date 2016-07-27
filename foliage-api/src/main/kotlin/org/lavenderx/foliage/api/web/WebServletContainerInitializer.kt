@@ -2,7 +2,7 @@ package org.lavenderx.foliage.api.web
 
 import org.lavenderx.foliage.api.config.ApiConfig
 import org.lavenderx.foliage.api.config.WebConfig
-import org.lavenderx.foliage.nettyrpc.utils.loggerFor
+import io.foliage.utils.loggerFor
 import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.CharacterEncodingFilter

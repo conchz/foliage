@@ -1,0 +1,8 @@
+group 'com.github.lavenderx'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile 'com.esotericsoftware:kryo:4.0.0'
+    compile "io.protostuff:protostuff-core:$protostuff_version"
+    compile "io.protostuff:protostuff-runtime:$protostuff_version"
+}

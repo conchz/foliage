@@ -1,11 +1,11 @@
 package org.lavenderx.foliage.api.config
 
 import com.google.common.base.CaseFormat
-import org.lavenderx.foliage.nettyrpc.annotation.RpcService
-import org.lavenderx.foliage.nettyrpc.client.RpcClient
-import org.lavenderx.foliage.nettyrpc.client.RpcProxy
-import org.lavenderx.foliage.nettyrpc.utils.loggerFor
-import org.lavenderx.foliage.nettyrpc.registry.ServiceDiscovery
+import io.foliage.netty.rpc.annotation.RpcService
+import io.foliage.netty.rpc.client.RpcClient
+import io.foliage.netty.rpc.client.RpcProxy
+import io.foliage.utils.loggerFor
+import io.foliage.netty.rpc.registry.ServiceDiscovery
 import org.reflections.Reflections
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
