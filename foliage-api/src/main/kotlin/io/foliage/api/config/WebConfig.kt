@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
-@ComponentScan("org.lavenderx.foliage.api.controller")
+@ComponentScan("io.foliage.api.controller")
 @EnableWebMvc
 open class WebConfig : WebMvcConfigurerAdapter() {
 

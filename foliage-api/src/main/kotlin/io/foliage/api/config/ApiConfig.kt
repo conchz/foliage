@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order
 
 @Order(0)
 @Configuration
-@ComponentScan("org.lavenderx.foliage.api.service")
+@ComponentScan("io.foliage.api.service")
 @PropertySource("classpath:api.properties")
 @Import(RpcCallableConfig::class)
 open class ApiConfig {
