@@ -3,22 +3,36 @@ package io.foliage.netty.rpc.protocol;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.Objects;
+
 public enum RpcSerializeProtocol {
 
     JDK_SERIALIZE("jdknative"), KRYO_SERIALIZE("kryo");
 
-    private String serializeProtocol;
+    private final String value;
 
     RpcSerializeProtocol(String serializeProtocol) {
-        this.serializeProtocol = serializeProtocol;
+        this.value = serializeProtocol;
     }
 
-    public String getProtocol() {
-        return serializeProtocol;
+    public String value() {
+        return value;
+    }
+
+    public static RpcSerializeProtocol fromValue(String v) {
+        if (v == null) {
+            throw new NullPointerException("Serialize protocol can't be null");
+        }
+        for (RpcSerializeProtocol protocol : RpcSerializeProtocol.values()) {
+            if (Objects.equals(protocol.value, v)) {
+                return protocol;
+            }
+        }
+        throw new IllegalArgumentException(v);
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
     }
 }

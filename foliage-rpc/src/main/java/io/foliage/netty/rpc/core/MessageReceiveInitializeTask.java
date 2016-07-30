@@ -3,7 +3,7 @@ package io.foliage.netty.rpc.core;
 import io.foliage.netty.rpc.protocol.MessageRequest;
 import io.foliage.netty.rpc.protocol.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.util.Map;
 import java.util.concurrent.Callable;

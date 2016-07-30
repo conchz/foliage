@@ -44,6 +44,7 @@ task debugApp(dependsOn: 'classes', type: JavaExec) {
 dependencies {
     compile "io.undertow:undertow-core:$undertow_version"
     compile "io.undertow:undertow-servlet:$undertow_version"
+    compile 'org.reflections:reflections:0.9.10'
 
     provided 'javax.servlet:javax.servlet-api:3.1.0'
 

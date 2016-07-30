@@ -2,7 +2,7 @@ package io.foliage.netty.rpc;
 
 import io.foliage.netty.rpc.core.MessageSendExecutor;
 import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +59,7 @@ public class RpcParallelTest {
         for (int i = 0; i < 10; i++) {
             JdkNativeParallelTask(executor, parallel);
             KryoParallelTask(executor, parallel);
-            System.out.printf("[author tangjie] Netty RPC Server 消息协议序列化第[%d]轮并发验证结束!\n\n", i);
+            System.out.printf("Netty RPC Server 消息协议序列化第[%d]轮并发验证结束!\n\n", i);
         }
 
         executor.stop();

@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import io.foliage.netty.rpc.annotation.RpcListenerContainer;
 import io.foliage.netty.rpc.protocol.MessageRequest;
 import io.foliage.netty.rpc.protocol.MessageResponse;
 import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
@@ -16,15 +17,14 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
@@ -33,22 +33,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class MessageReceiveExecutor implements ApplicationContextAware, InitializingBean {
 
-    private String serverAddress;
-    private RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.KRYO_SERIALIZE;
-
-    private final static String DELIMITER = ":";
+    private static final String DELIMITER = ":";
+    private static ListeningExecutorService threadPoolExecutor;
 
     private final Map<String, Object> handlerMap = new ConcurrentHashMap<>();
 
-    private static ListeningExecutorService threadPoolExecutor;
+    private final String serverAddress;
+    private final RpcSerializeProtocol serializeProtocol;
 
     public MessageReceiveExecutor(String serverAddress) {
-        this.serverAddress = serverAddress;
+        this(serverAddress, RpcSerializeProtocol.KRYO_SERIALIZE.value());
     }
 
     public MessageReceiveExecutor(String serverAddress, String serializeProtocol) {
         this.serverAddress = serverAddress;
-        this.serializeProtocol = Enum.valueOf(RpcSerializeProtocol.class, serializeProtocol);
+        this.serializeProtocol = RpcSerializeProtocol.fromValue(serializeProtocol);
     }
 
     public static void submit(Callable<Boolean> task, ChannelHandlerContext ctx, MessageRequest request, MessageResponse response) {
@@ -65,7 +64,7 @@ public class MessageReceiveExecutor implements ApplicationContextAware, Initiali
         Futures.addCallback(listenableFuture, new FutureCallback<Boolean>() {
             public void onSuccess(Boolean result) {
                 ctx.writeAndFlush(response).addListener(channelFuture -> {
-                    log.info("RPC Server Send messageId response: {}", request.getMessageId());
+                    log.info("RPC server send messageId response: {}", request.getMessageId());
                 });
             }
 
@@ -77,20 +76,17 @@ public class MessageReceiveExecutor implements ApplicationContextAware, Initiali
 
     @SuppressWarnings("unchecked")
     public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        try {
-            MessageKeyVal keyVal = (MessageKeyVal) ctx.getBean(Class.forName("io.foliage.netty.rpc.core.MessageKeyVal"));
-            Map<String, Object> rpcServiceObject = keyVal.getMessageKeyVal();
+        Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(RpcListenerContainer.class);
+        if (MapUtils.isNotEmpty(serviceBeanMap)) {
+            for (Object serviceBean : serviceBeanMap.values()) {
+                String interfaceName = serviceBean
+                        .getClass()
+                        .getAnnotation(RpcListenerContainer.class)
+                        .value()
+                        .getName();
 
-            Set s = rpcServiceObject.entrySet();
-            Iterator<Map.Entry<String, Object>> it = s.iterator();
-            Map.Entry<String, Object> entry;
-
-            while (it.hasNext()) {
-                entry = it.next();
-                handlerMap.put(entry.getKey(), entry.getValue());
+                handlerMap.put(interfaceName, serviceBean);
             }
-        } catch (ClassNotFoundException ex) {
-            log.error("", ex);
         }
     }
 
@@ -118,10 +114,10 @@ public class MessageReceiveExecutor implements ApplicationContextAware, Initiali
                 String host = ipAddr[0];
                 int port = Integer.parseInt(ipAddr[1]);
                 ChannelFuture future = bootstrap.bind(host, port).sync();
-                log.info("Netty RPC Server started successfully! host: {}, port {}, protocol: {}", host, port, serializeProtocol);
+                log.info("Netty RPC server started successfully! host: {}, port {}, protocol: {}", host, port, serializeProtocol);
                 future.channel().closeFuture().sync();
             } else {
-                log.error("Netty RPC Server start failed!");
+                log.error("Netty RPC server start failed!");
             }
         } finally {
             worker.shutdownGracefully();
