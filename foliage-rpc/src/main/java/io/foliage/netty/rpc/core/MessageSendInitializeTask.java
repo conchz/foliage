@@ -13,23 +13,23 @@ import java.util.concurrent.Callable;
 
 public class MessageSendInitializeTask implements Callable<Boolean> {
 
-    private EventLoopGroup eventLoopGroup = null;
-    private InetSocketAddress serverAddress = null;
-    private RpcSerializeProtocol protocol;
+    private final EventLoopGroup eventLoopGroup;
+    private final InetSocketAddress serverAddress;
+    private final RpcSerializeProtocol protocol;
 
-    MessageSendInitializeTask(EventLoopGroup eventLoopGroup, InetSocketAddress serverAddress, RpcSerializeProtocol protocol) {
+    public MessageSendInitializeTask(EventLoopGroup eventLoopGroup, InetSocketAddress serverAddress, RpcSerializeProtocol protocol) {
         this.eventLoopGroup = eventLoopGroup;
         this.serverAddress = serverAddress;
         this.protocol = protocol;
     }
 
     public Boolean call() {
-        Bootstrap b = new Bootstrap();
-        b.group(eventLoopGroup)
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true);
-        b.handler(new MessageSendChannelInitializer().buildRpcSerializeProtocol(protocol));
+        bootstrap.handler(new MessageSendChannelInitializer().buildRpcSerializeProtocol(protocol));
 
-        ChannelFuture channelFuture = b.connect(serverAddress);
+        ChannelFuture channelFuture = bootstrap.connect(serverAddress);
         channelFuture.addListener(new ChannelFutureListener() {
             public void operationComplete(final ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
@@ -38,6 +38,7 @@ public class MessageSendInitializeTask implements Callable<Boolean> {
                 }
             }
         });
+
         return Boolean.TRUE;
     }
 }

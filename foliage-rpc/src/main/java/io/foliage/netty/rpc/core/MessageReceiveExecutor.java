@@ -9,6 +9,7 @@ import io.foliage.netty.rpc.annotation.RpcListenerContainer;
 import io.foliage.netty.rpc.protocol.MessageRequest;
 import io.foliage.netty.rpc.protocol.MessageResponse;
 import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
+import io.foliage.netty.rpc.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,6 +23,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Map;
@@ -33,21 +35,20 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class MessageReceiveExecutor implements ApplicationContextAware, InitializingBean {
 
-    private static final String DELIMITER = ":";
     private static ListeningExecutorService threadPoolExecutor;
 
     private final Map<String, Object> handlerMap = new ConcurrentHashMap<>();
+    private final RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.KRYO_SERIALIZE;
 
     private final String serverAddress;
-    private final RpcSerializeProtocol serializeProtocol;
+    private final ServiceRegistry serviceRegistry;
 
-    public MessageReceiveExecutor(String serverAddress) {
-        this(serverAddress, RpcSerializeProtocol.KRYO_SERIALIZE.value());
-    }
+    public MessageReceiveExecutor(String serverAddress, ServiceRegistry serviceRegistry) {
+        Assert.notNull(serverAddress);
+        Assert.notNull(serviceRegistry);
 
-    public MessageReceiveExecutor(String serverAddress, String serializeProtocol) {
         this.serverAddress = serverAddress;
-        this.serializeProtocol = RpcSerializeProtocol.fromValue(serializeProtocol);
+        this.serviceRegistry = serviceRegistry;
     }
 
     public static void submit(Callable<Boolean> task, ChannelHandlerContext ctx, MessageRequest request, MessageResponse response) {
@@ -108,13 +109,16 @@ public class MessageReceiveExecutor implements ApplicationContextAware, Initiali
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            String[] ipAddr = serverAddress.split(MessageReceiveExecutor.DELIMITER);
+            String[] hostArr = serverAddress.split(":");
 
-            if (ipAddr.length == 2) {
-                String host = ipAddr[0];
-                int port = Integer.parseInt(ipAddr[1]);
+            if (hostArr.length == 2) {
+                String host = hostArr[0];
+                int port = Integer.parseInt(hostArr[1]);
                 ChannelFuture future = bootstrap.bind(host, port).sync();
                 log.info("Netty RPC server started successfully! host: {}, port {}, protocol: {}", host, port, serializeProtocol);
+
+                serviceRegistry.register(serverAddress);
+
                 future.channel().closeFuture().sync();
             } else {
                 log.error("Netty RPC server start failed!");

@@ -1,5 +1,6 @@
 package io.foliage.netty.rpc.core;
 
+import io.foliage.netty.rpc.protocol.RpcSerializeProtocol;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -114,7 +115,7 @@ public class RpcConnectionManager {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(eventLoopGroup)
                     .channel(NioSocketChannel.class)
-                    .handler(new MessageSendChannelInitializer());
+                    .handler(new MessageSendChannelInitializer().buildRpcSerializeProtocol(RpcSerializeProtocol.KRYO_SERIALIZE));
 
             ChannelFuture channelFuture = bootstrap.connect(remotePeer);
             channelFuture.addListener(new ChannelFutureListener() {

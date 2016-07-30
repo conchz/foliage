@@ -3,6 +3,7 @@ package io.foliage.netty.rpc.sample.config
 import io.foliage.netty.rpc.config.RpcConfig
 import io.foliage.netty.rpc.core.MessageReceiveExecutor
 import io.foliage.netty.rpc.registry.ServiceRegistry
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -14,19 +15,22 @@ import org.springframework.context.annotation.Import
 @Import(RpcConfig::class)
 open class ServerConfig {
 
-    @Value("\${registry.address}")
-    private val registryAddress: String? = null
+    private val registryAddress: String
+    private val serverAddress: String
 
-    @Value("\${server.address}")
-    private val serverAddress: String? = null
+    @Autowired constructor(@Value("\${registry.address}") registryAddress: String,
+                           @Value("\${server.address}") serverAddress: String) {
+        this.registryAddress = registryAddress
+        this.serverAddress = serverAddress
+    }
 
     @Bean
     open fun serviceRegistry(): ServiceRegistry {
-        return ServiceRegistry(registryAddress!!)
+        return ServiceRegistry(registryAddress)
     }
 
     @Bean
     open fun rpcServer(): MessageReceiveExecutor {
-        return MessageReceiveExecutor(serverAddress!!)
+        return MessageReceiveExecutor(serverAddress, serviceRegistry())
     }
 }

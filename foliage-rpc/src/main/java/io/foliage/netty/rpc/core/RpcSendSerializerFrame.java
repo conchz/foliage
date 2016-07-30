@@ -26,9 +26,9 @@ public class RpcSendSerializerFrame implements RpcSerializerFrame {
                 break;
             }
             case KRYO_SERIALIZE: {
-                KryoCodec util = new KryoCodec(KryoPoolFactory.getKryoPoolInstance());
-                pipeline.addLast(new KryoEncoder(util));
-                pipeline.addLast(new KryoDecoder(util));
+                KryoCodec codec = new KryoCodec(KryoPoolFactory.getKryoPoolInstance());
+                pipeline.addLast(new KryoEncoder(codec));
+                pipeline.addLast(new KryoDecoder(codec));
                 pipeline.addLast(new MessageSendHandler());
                 break;
             }

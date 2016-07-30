@@ -52,16 +52,16 @@ public class RpcParallelTest {
     }
 
     public static void main(String[] args) throws Exception {
-        //并行度10000
-        int parallel = 10000;
-        MessageSendExecutor executor = new MessageSendExecutor();
-
-        for (int i = 0; i < 10; i++) {
-            JdkNativeParallelTask(executor, parallel);
-            KryoParallelTask(executor, parallel);
-            System.out.printf("Netty RPC Server 消息协议序列化第[%d]轮并发验证结束!\n\n", i);
-        }
-
-        executor.stop();
+//        //并行度10000
+//        int parallel = 10000;
+//        MessageSendExecutor executor = new MessageSendExecutor();
+//
+//        for (int i = 0; i < 10; i++) {
+//            JdkNativeParallelTask(executor, parallel);
+//            KryoParallelTask(executor, parallel);
+//            System.out.printf("Netty RPC Server 消息协议序列化第[%d]轮并发验证结束!\n\n", i);
+//        }
+//
+//        executor.stop();
     }
 }

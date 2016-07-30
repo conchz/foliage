@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping
-class HelloController @Autowired constructor() {
+class HelloController /*@Autowired constructor*/() {
 
     private val logger = loggerFor<HelloController>()
 

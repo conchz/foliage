@@ -8,7 +8,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public class MessageSendChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private RpcSendSerializerFrame frame = new RpcSendSerializerFrame();
+    private final RpcSendSerializerFrame frame = new RpcSendSerializerFrame();
     private RpcSerializeProtocol protocol;
 
     public MessageSendChannelInitializer buildRpcSerializeProtocol(final RpcSerializeProtocol protocol) {

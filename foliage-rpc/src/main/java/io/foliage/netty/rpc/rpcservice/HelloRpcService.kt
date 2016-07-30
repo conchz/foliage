@@ -1,4 +1,4 @@
-package io.foliage.netty.rpc.sample.rpcservice
+package io.foliage.netty.rpc.rpcservice
 
 import io.foliage.netty.rpc.annotation.RpcService
 
