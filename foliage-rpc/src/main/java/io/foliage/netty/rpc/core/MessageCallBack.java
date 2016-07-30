@@ -10,10 +10,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class MessageCallBack {
 
+    private final Lock lock = new ReentrantLock();
+    private final Condition finish = lock.newCondition();
     private MessageRequest request;
     private MessageResponse response;
-    private Lock lock = new ReentrantLock();
-    private Condition finish = lock.newCondition();
 
     public MessageCallBack(MessageRequest request) {
         this.request = request;
@@ -23,7 +23,7 @@ public class MessageCallBack {
         try {
             lock.lock();
             // 设定一下超时时间, rpc服务器太久没有相应的话, 就默认返回空.
-            finish.await(10 * 1000, TimeUnit.MILLISECONDS);
+            finish.await(10_1000, TimeUnit.MILLISECONDS);
             if (this.response != null) {
                 return this.response.getResultDesc();
             } else {

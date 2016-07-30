@@ -54,7 +54,8 @@ public class RpcServerLoader {
             int port = Integer.parseInt(hostArr[1]);
             final InetSocketAddress remotePeer = new InetSocketAddress(host, port);
 
-            ListenableFuture<Boolean> listenableFuture = threadPoolExecutor.submit(new MessageSendInitializeTask(eventLoopGroup, remotePeer, serializeProtocol));
+            ListenableFuture<Boolean> listenableFuture = threadPoolExecutor
+                    .submit(new MessageSendInitializeTask(eventLoopGroup, remotePeer, serializeProtocol));
 
             // 监听线程池异步的执行结果成功与否再决定是否唤醒全部的客户端RPC线程
             Futures.addCallback(listenableFuture, new FutureCallback<Boolean>() {
